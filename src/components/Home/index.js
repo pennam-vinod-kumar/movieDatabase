@@ -15,6 +15,7 @@ class Home extends Component {
   state = {
     popularMovieDetails: [],
     apiStatus: apiStatusConstants.initial,
+    currentPage: 1,
   }
 
   componentDidMount() {
@@ -22,11 +23,12 @@ class Home extends Component {
   }
 
   getMovieData = async () => {
+    const {currentPage} = this.state
     this.setState({
       apiStatus: apiStatusConstants.inProgress,
     })
 
-    const movieDetailsApiUrl = `https://api.themoviedb.org/3/movie/popular?api_key=c3ed7286c96027970168a020abe0241b&language=en-US&page=1`
+    const movieDetailsApiUrl = `https://api.themoviedb.org/3/movie/popular?api_key=c3ed7286c96027970168a020abe0241b&language=en-US&page=${currentPage}`
 
     const responseMovieData = await fetch(movieDetailsApiUrl)
     if (responseMovieData.ok === true) {
@@ -59,9 +61,19 @@ class Home extends Component {
     }
   }
 
-  renderJobDetailsSuccessView = () => {
-    const {popularMovieDetails} = this.state
-    console.log(`the ans is ${popularMovieDetails[0].posterPath}`)
+  handlePageChange = newPage => {
+    this.setState(
+      {
+        currentPage: newPage,
+      },
+      () => {
+        this.getMovieData()
+      },
+    )
+  }
+
+  renderMovieDetailsSuccessView = () => {
+    const {popularMovieDetails, currentPage} = this.state
 
     return (
       <>
@@ -72,24 +84,40 @@ class Home extends Component {
               <MovieCard key={eachItem.id} movieData={eachItem} />
             ))}
           </ul>
+
+          <button
+            type="button"
+            onClick={() => this.handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          <p1>{currentPage}</p1>
+          <button
+            type="button"
+            onClick={() => this.handlePageChange(currentPage + 1)}
+            disabled={currentPage === 100}
+          >
+            Next
+          </button>
         </div>
       </>
     )
   }
 
-  onRetryJobDetailsAgain = () => {
-    this.getJobData()
+  onRetryMovieDetailsAgain = () => {
+    this.getMovieData()
   }
 
-  renderJobFailureView = () => (
-    <div className="job-details-failure-view">
+  renderMovieFailureView = () => (
+    <div>
       <img
         src="https://assets.ccbp.in/frontend/react-js/failure-img.png"
         alt="failure view"
       />
       <h1>Oops! Something Went Wrong</h1>
       <p>we cannot seem to find the page you are looking for.</p>
-      <div className="btn-container-failure">
+      <div>
         <button
           className="failure-jod-details-btn"
           type="button"
@@ -101,22 +129,22 @@ class Home extends Component {
     </div>
   )
 
-  renderJobLoadingView = () => (
-    <div className="job-details-loader" data-testid="loader">
+  renderMovieLoadingView = () => (
+    <div data-testid="loader">
       <Loader type="ThreeDots" color="#0b69ff" height="50" width="50" />
     </div>
   )
 
-  renderJobDetails = () => {
+  renderMovieDetails = () => {
     const {apiStatus} = this.state
 
     switch (apiStatus) {
       case apiStatusConstants.success:
-        return this.renderJobDetailsSuccessView()
+        return this.renderMovieDetailsSuccessView()
       case apiStatusConstants.failure:
-        return this.renderJobFailureView()
+        return this.renderMovieFailureView()
       case apiStatusConstants.inProgress:
-        return this.renderJobLoadingView()
+        return this.renderMovieLoadingView()
       default:
         return null
     }
@@ -126,9 +154,7 @@ class Home extends Component {
     return (
       <>
         <Header />
-        <div className="job-details-view-container">
-          {this.renderJobDetails()}
-        </div>
+        <div>{this.renderMovieDetails()}</div>
       </>
     )
   }

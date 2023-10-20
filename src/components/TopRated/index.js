@@ -15,6 +15,7 @@ class TopRated extends Component {
   state = {
     popularMovieDetails: [],
     apiStatus: apiStatusConstants.initial,
+    currentPage: 1,
   }
 
   componentDidMount() {
@@ -22,11 +23,12 @@ class TopRated extends Component {
   }
 
   getMovieData = async () => {
+    const {currentPage} = this.state
     this.setState({
       apiStatus: apiStatusConstants.inProgress,
     })
 
-    const movieDetailsApiUrl = `https://api.themoviedb.org/3/movie/top_rated?api_key=c3ed7286c96027970168a020abe0241b&language=en-US&page=1`
+    const movieDetailsApiUrl = `https://api.themoviedb.org/3/movie/top_rated?api_key=c3ed7286c96027970168a020abe0241b&language=en-US&page=${currentPage}`
     const responseMovieData = await fetch(movieDetailsApiUrl)
     if (responseMovieData.ok === true) {
       const fetchedMovieData = await responseMovieData.json()
@@ -46,7 +48,6 @@ class TopRated extends Component {
         voteAverage: eachItem.vote_average,
         voteCount: eachItem.vote_count,
       }))
-      console.log(updatedData)
       this.setState({
         popularMovieDetails: updatedData,
         apiStatus: apiStatusConstants.success,
@@ -58,8 +59,26 @@ class TopRated extends Component {
     }
   }
 
-  renderJobDetailsSuccessView = () => {
-    const {popularMovieDetails} = this.state
+  onIncrement = () => {
+    this.setState(
+      prevState => ({
+        currentPage: prevState.currentPage + 1,
+      }),
+      this.getMovieData,
+    )
+  }
+
+  onDecrement = () => {
+    this.setState(
+      prevState => ({
+        currentPage: prevState.currentPage - 1,
+      }),
+      this.getMovieData,
+    )
+  }
+
+  renderMovieDetailsSuccessView = () => {
+    const {popularMovieDetails, currentPage} = this.state
     return (
       <>
         <div>
@@ -69,17 +88,31 @@ class TopRated extends Component {
               <MovieCard key={eachItem.id} movieData={eachItem} />
             ))}
           </ul>
+          <div className="pagination">
+            <button
+              type="button"
+              onClick={this.onDecrement}
+              disabled={currentPage === 1}
+            >
+              Prev
+            </button>
+
+            <button type="button" onClick={this.onIncrement}>
+              Next
+            </button>
+            <p1>{currentPage}</p1>
+          </div>
         </div>
       </>
     )
   }
 
-  onRetryJobDetailsAgain = () => {
-    this.getJobData()
+  onRetryMovieDetailsAgain = () => {
+    this.getMovieData()
   }
 
-  renderJobFailureView = () => (
-    <div className="job-details-failure-view">
+  renderMovieFailureView = () => (
+    <div>
       <img
         src="https://assets.ccbp.in/frontend/react-js/failure-img.png"
         alt="failure view"
@@ -87,33 +120,29 @@ class TopRated extends Component {
       <h1>Oops! Something Went Wrong</h1>
       <p>we cannot seem to find the page you are looking for.</p>
       <div className="btn-container-failure">
-        <button
-          className="failure-jod-details-btn"
-          type="button"
-          onClick={this.onRetryJobDetailsAgain}
-        >
+        <button type="button" onClick={this.onRetryJobDetailsAgain}>
           retry
         </button>
       </div>
     </div>
   )
 
-  renderJobLoadingView = () => (
-    <div className="job-details-loader" data-testid="loader">
+  renderMovieLoadingView = () => (
+    <div data-testid="loader">
       <Loader type="ThreeDots" color="#0b69ff" height="50" width="50" />
     </div>
   )
 
-  renderJobDetails = () => {
+  renderMovieDetails = () => {
     const {apiStatus} = this.state
 
     switch (apiStatus) {
       case apiStatusConstants.success:
-        return this.renderJobDetailsSuccessView()
+        return this.renderMovieDetailsSuccessView()
       case apiStatusConstants.failure:
-        return this.renderJobFailureView()
+        return this.renderMovieFailureView()
       case apiStatusConstants.inProgress:
-        return this.renderJobLoadingView()
+        return this.renderMovieLoadingView()
       default:
         return null
     }
@@ -123,9 +152,7 @@ class TopRated extends Component {
     return (
       <>
         <Header />
-        <div className="job-details-view-container">
-          {this.renderJobDetails()}
-        </div>
+        <div>{this.renderMovieDetails()}</div>
       </>
     )
   }

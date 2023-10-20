@@ -5,10 +5,7 @@ const MovieCard = props => {
   const {posterPath, title, voteAverage, id} = movieData
   return (
     <li>
-      <img
-        src={`https://davistheater.com/wp-content/uploads/2023/07/${posterPath}`}
-        alt={title}
-      />
+      <img src={posterPath} alt={title} />
       <p>{title}</p>
       <p>{voteAverage}</p>
       <Link to={`/movie/${id}`}>

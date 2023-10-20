@@ -15,6 +15,7 @@ class UpComing extends Component {
   state = {
     popularMovieDetails: [],
     apiStatus: apiStatusConstants.initial,
+    currentPage: 1,
   }
 
   componentDidMount() {
@@ -22,12 +23,12 @@ class UpComing extends Component {
   }
 
   getMovieData = async () => {
+    const {currentPage} = this.state
     this.setState({
       apiStatus: apiStatusConstants.inProgress,
     })
 
-    const movieDetailsApiUrl =
-      'https://api.themoviedb.org/3/movie/upcoming?api_key=c3ed7286c96027970168a020abe0241b&language=en-US&page=1'
+    const movieDetailsApiUrl = `https://api.themoviedb.org/3/movie/upcoming?api_key=c3ed7286c96027970168a020abe0241b&language=en-US&page=${currentPage}`
     const responseMovieData = await fetch(movieDetailsApiUrl)
     if (responseMovieData.ok === true) {
       const fetchedMovieData = await responseMovieData.json()
@@ -59,8 +60,19 @@ class UpComing extends Component {
     }
   }
 
-  renderJobDetailsSuccessView = () => {
-    const {popularMovieDetails} = this.state
+  handlePageChange = newPage => {
+    this.setState(
+      {
+        currentPage: newPage,
+      },
+      () => {
+        this.getMovieData()
+      },
+    )
+  }
+
+  renderMovieDetailsSuccessView = () => {
+    const {popularMovieDetails, currentPage} = this.state
     return (
       <>
         <div>
@@ -70,51 +82,63 @@ class UpComing extends Component {
               <MovieCard key={eachItem.id} movieData={eachItem} />
             ))}
           </ul>
+          <div className="pagination">
+            <button
+              type="button"
+              onClick={() => this.handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Prev
+            </button>
+            <button
+              type="button"
+              onClick={() => this.handlePageChange(currentPage + 1)}
+            >
+              Next
+            </button>
+            <p1>{currentPage}</p1>
+          </div>
         </div>
       </>
     )
   }
 
-  onRetryJobDetailsAgain = () => {
+  onRetryMovieDetailsAgain = () => {
     this.getJobData()
   }
 
-  renderJobFailureView = () => (
-    <div className="job-details-failure-view">
+  renderMovieFailureView = () => (
+    <div>
       <img
         src="https://assets.ccbp.in/frontend/react-js/failure-img.png"
         alt="failure view"
       />
       <h1>Oops! Something Went Wrong</h1>
       <p>we cannot seem to find the page you are looking for.</p>
-      <div className="btn-container-failure">
-        <button
-          className="failure-jod-details-btn"
-          type="button"
-          onClick={this.onRetryJobDetailsAgain}
-        >
+      <div>
+        <button type="button" onClick={this.onRetryJobDetailsAgain}>
           retry
         </button>
       </div>
     </div>
   )
 
-  renderJobLoadingView = () => (
-    <div className="job-details-loader" data-testid="loader">
+  renderMovieLoadingView = () => (
+    <div data-testid="loader">
       <Loader type="ThreeDots" color="#0b69ff" height="50" width="50" />
     </div>
   )
 
-  renderJobDetails = () => {
+  renderMovieDetails = () => {
     const {apiStatus} = this.state
 
     switch (apiStatus) {
       case apiStatusConstants.success:
-        return this.renderJobDetailsSuccessView()
+        return this.renderMovieDetailsSuccessView()
       case apiStatusConstants.failure:
-        return this.renderJobFailureView()
+        return this.renderMovieFailureView()
       case apiStatusConstants.inProgress:
-        return this.renderJobLoadingView()
+        return this.renderMovieLoadingView()
       default:
         return null
     }
@@ -124,9 +148,7 @@ class UpComing extends Component {
     return (
       <>
         <Header />
-        <div className="job-details-view-container">
-          {this.renderJobDetails()}
-        </div>
+        <div>{this.renderMovieDetails()}</div>
       </>
     )
   }
