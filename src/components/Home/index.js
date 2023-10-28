@@ -76,32 +76,29 @@ class Home extends Component {
     const {popularMovieDetails, currentPage} = this.state
 
     return (
-      <>
-        <div>
-          <input type="text" />
-          <ul>
-            {popularMovieDetails.map(eachItem => (
-              <MovieCard key={eachItem.id} movieData={eachItem} />
-            ))}
-          </ul>
+      <div>
+        <button
+          type="button"
+          onClick={() => this.handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Prev
+        </button>
+        <p1>{currentPage}</p1>
+        <button
+          type="button"
+          onClick={() => this.handlePageChange(currentPage + 1)}
+        >
+          Next
+        </button>
 
-          <button
-            type="button"
-            onClick={() => this.handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            Prev
-          </button>
-          <p1>{currentPage}</p1>
-          <button
-            type="button"
-            onClick={() => this.handlePageChange(currentPage + 1)}
-            disabled={currentPage === 100}
-          >
-            Next
-          </button>
-        </div>
-      </>
+        <input type="text" />
+        <ul>
+          {popularMovieDetails.map(eachItem => (
+            <MovieCard key={eachItem.id} movieData={eachItem} />
+          ))}
+        </ul>
+      </div>
     )
   }
 

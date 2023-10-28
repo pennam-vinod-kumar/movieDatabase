@@ -80,30 +80,27 @@ class TopRated extends Component {
   renderMovieDetailsSuccessView = () => {
     const {popularMovieDetails, currentPage} = this.state
     return (
-      <>
-        <div>
-          <input type="search" />
-          <ul>
-            {popularMovieDetails.map(eachItem => (
-              <MovieCard key={eachItem.id} movieData={eachItem} />
-            ))}
-          </ul>
-          <div className="pagination">
-            <button
-              type="button"
-              onClick={this.onDecrement}
-              disabled={currentPage === 1}
-            >
-              Prev
-            </button>
-
-            <button type="button" onClick={this.onIncrement}>
-              Next
-            </button>
-            <p1>{currentPage}</p1>
-          </div>
+      <div>
+        <div className="pagination">
+          <button
+            type="button"
+            onClick={this.onDecrement}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          <p1>{currentPage}</p1>
+          <button type="button" onClick={this.onIncrement}>
+            Next
+          </button>
         </div>
-      </>
+        <input type="search" />
+        <ul>
+          {popularMovieDetails.map(eachItem => (
+            <MovieCard key={eachItem.id} movieData={eachItem} />
+          ))}
+        </ul>
+      </div>
     )
   }
 
